@@ -37,8 +37,8 @@ if st.session_state.players:
     # Step 2: Draw random cards
     emotion = random.choice(EMOTIONS)
     prompt = random.choice(PROMPTS)
-    st.write(f"### Emotion: {emotion}")
-    st.write(f"### Prompt: {prompt}")
+    st.caption(f"### Emotion: {emotion}")
+    st.caption(f"### Prompt: {prompt}")
     
     # Step 3: Write a story
     story = st.text_area("Write your story")
