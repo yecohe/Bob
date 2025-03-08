@@ -20,6 +20,8 @@ if "step" not in st.session_state:
     st.session_state.step = 1
 if "first_round_completed" not in st.session_state:
     st.session_state.first_round_completed = False
+if "round" not in st.session_state:
+    st.session_state.round = 1
 
 # Step 1: Set up players (only happens once)
 st.title("Blame It on Bob")
@@ -29,8 +31,11 @@ player_names = [p.strip() for p in player_names if p.strip()]
 if st.button("Start Game"):
     if 3 <= len(player_names) <= 8:
         st.session_state.players = player_names
-        st.session_state.round = 1
         st.session_state.step = 2
+        st.session_state.round = 1
+        st.session_state.first_round_completed = False
+        st.session_state.game_data = []  # Reset game data for new session
+        st.rerun()  # Rerun to move to the next step
     else:
         st.error("Please enter between 3 and 8 players.")
 
@@ -59,21 +64,26 @@ if st.session_state.players and st.session_state.step >= 2:
         if st.button("Next"):
             st.session_state.characters = character_inputs
             st.session_state.step = 3
+            st.rerun()  # Rerun to move to the next step
     
     # Step 5: Assign characters to players (Select Box, only if step >= 3)
     if st.session_state.step >= 3:
         st.write("### Match characters with players")
         assigned_players = {}
+        remaining_players = st.session_state.players.copy()
         for char in st.session_state.characters:
-            selected_player = st.selectbox(f"Assign {char} to a player", st.session_state.players, key=f"player_{char}")
+            selected_player = st.selectbox(f"Assign {char} to a player", remaining_players, key=f"player_{char}")
             assigned_players[char] = selected_player
+            remaining_players.remove(selected_player)  # Remove selected player from remaining options
         
         # Step 6: Assign characters to puppets (Select Box)
         st.write("### Match characters with puppets")
         assigned_puppets = {}
+        remaining_puppets = PUPPETS.copy()
         for char in st.session_state.characters:
-            selected_puppet = st.selectbox(f"Assign {char} to a puppet", PUPPETS, key=f"puppet_{char}")
+            selected_puppet = st.selectbox(f"Assign {char} to a puppet", remaining_puppets, key=f"puppet_{char}")
             assigned_puppets[char] = selected_puppet
+            remaining_puppets.remove(selected_puppet)  # Remove selected puppet from remaining options
         
         # Step 7: Notes
         notes = st.text_area("Additional notes", key="notes_input")
@@ -92,18 +102,11 @@ if st.session_state.players and st.session_state.step >= 2:
             # Save the data
             st.session_state.game_data.append(row_data)
             
-            # Empty input fields for next round
-            st.session_state.characters = []
+            # Rerun to prepare for the next round
             st.session_state.step = 2
             st.session_state.round += 1
-            st.session_state.first_round_completed = True
-            
-            # Reset the story and character inputs for next round
-            st.session_state.story_input = ""
-            for i in range(len(st.session_state.players)):
-                st.session_state[f"char_{i}"] = ""
-            st.session_state["notes_input"] = ""
-    
+            st.rerun()
+
     # Step 9: Download CSV (only after first round)
     if st.session_state.first_round_completed:
         df = pd.DataFrame(st.session_state.game_data)
