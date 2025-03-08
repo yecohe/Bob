@@ -80,10 +80,21 @@ if st.session_state.players and st.session_state.step >= 2:
         
         # Step 8: Save results
         if st.button("Finish Round"):
-            row_data = {puppet: f"{assigned_players[char]} - {char}" for char, puppet in assigned_puppets.items()}
+            row_data = {
+                "emotion": emotion,
+                "prompt": prompt,
+                "story": story,
+                "notes": notes,
+            }
+            row_data.update({puppet: f"{assigned_players[char]} - {char}" for char, puppet in assigned_puppets.items()})
+            
+            # Save the data
             st.session_state.game_data.append(row_data)
-            st.session_state.round += 1
+            
+            # Empty input fields for next round
+            st.session_state.characters = []
             st.session_state.step = 2
+            st.session_state.round += 1
             st.session_state.first_round_completed = True
     
     # Step 9: Download CSV (only after first round)
