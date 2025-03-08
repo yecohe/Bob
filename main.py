@@ -38,7 +38,7 @@ if st.button("Start Game"):
         st.session_state.story_input = ""  # Reset story input
         st.session_state.character_inputs = []  # Reset character inputs
         st.session_state.notes_input = ""  # Reset notes input
-        st.rerun()  # Rerun to move to the next step
+        st.experimental_rerun()  # Rerun to move to the next step
     else:
         st.error("Please enter between 3 and 8 players.")
 
@@ -53,7 +53,9 @@ if st.session_state.players and st.session_state.step >= 2:
     st.caption(f"Prompt: {prompt}")
     
     # Step 3: Write a story
-    story = st.text_area("Write your story", key="story_input")
+    if "story_input" not in st.session_state:
+        st.session_state.story_input = ""
+    story = st.text_area("Write your story", value=st.session_state.story_input, key="story_input")
     
     # Step 4: Add characters (Minimum 2, Maximum: number of players)
     character_inputs = []
@@ -67,7 +69,7 @@ if st.session_state.players and st.session_state.step >= 2:
         if st.button("Next"):
             st.session_state.characters = character_inputs
             st.session_state.step = 3
-            st.rerun()  # Rerun to move to the next step
+            st.experimental_rerun()  # Rerun to move to the next step
     
     # Step 5: Assign characters to players (Select Box, only if step >= 3)
     if st.session_state.step >= 3:
@@ -111,7 +113,7 @@ if st.session_state.players and st.session_state.step >= 2:
             st.session_state.story_input = ""  # Reset story input
             st.session_state.character_inputs = []  # Reset character inputs
             st.session_state.notes_input = ""  # Reset notes input
-            st.rerun()
+            st.experimental_rerun()  # Explicit rerun
 
     # Step 9: Download CSV (only after first round)
     if st.session_state.first_round_completed:
