@@ -45,7 +45,7 @@ if st.session_state.players and st.session_state.step >= 2:
     st.caption(f"Prompt: {prompt}")
     
     # Step 3: Write a story
-    story = st.text_area("Write your story")
+    story = st.text_area("Write your story", key="story_input")
     
     # Step 4: Add characters (Minimum 2, Maximum: number of players)
     character_inputs = []
@@ -76,15 +76,16 @@ if st.session_state.players and st.session_state.step >= 2:
             assigned_puppets[char] = selected_puppet
         
         # Step 7: Notes
-        notes = st.text_area("Additional notes")
+        notes = st.text_area("Additional notes", key="notes_input")
         
         # Step 8: Save results
         if st.button("Finish Round"):
             row_data = {
-                "emotion": emotion,
-                "prompt": prompt,
-                "story": story,
-                "notes": notes,
+                "Emotion": emotion,
+                "Prompt": prompt,
+                "Characters": character_inputs,
+                "Story": story,
+                "Notes": notes,
             }
             row_data.update({puppet: f"{assigned_players[char]} - {char}" for char, puppet in assigned_puppets.items()})
             
@@ -96,6 +97,12 @@ if st.session_state.players and st.session_state.step >= 2:
             st.session_state.step = 2
             st.session_state.round += 1
             st.session_state.first_round_completed = True
+            
+            # Reset the story and character inputs for next round
+            st.session_state.story_input = ""
+            for i in range(len(st.session_state.players)):
+                st.session_state[f"char_{i}"] = ""
+            st.session_state["notes_input"] = ""
     
     # Step 9: Download CSV (only after first round)
     if st.session_state.first_round_completed:
