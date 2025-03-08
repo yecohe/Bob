@@ -69,7 +69,7 @@ if st.session_state.players and st.session_state.step >= 2:
         if st.button("Next"):
             st.session_state.characters = character_inputs
             st.session_state.step = 3
-            st.experimental_rerun()  # Rerun to move to the next step
+            st.rerun()  # Rerun to move to the next step
     
     # Step 5: Assign characters to players (Select Box, only if step >= 3)
     if st.session_state.step >= 3:
@@ -113,7 +113,7 @@ if st.session_state.players and st.session_state.step >= 2:
             st.session_state.story_input = ""  # Reset story input
             st.session_state.character_inputs = []  # Reset character inputs
             st.session_state.notes_input = ""  # Reset notes input
-            st.experimental_rerun()  # Explicit rerun
+            st.rerun()  # Explicit rerun
 
     # Step 9: Download CSV (only after first round)
     if st.session_state.first_round_completed:
