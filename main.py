@@ -19,7 +19,7 @@ if "game_data" not in st.session_state:
     st.session_state.game_data = []
 
 # Step 1: Set up players (only happens once)
-st.title("Blame It on Bop")
+st.title("Blame It on Bob")
 st.subheader("Enter player names (3-8 players):")
 player_names = st.text_area("Players (one per line)").split("\n")
 player_names = [p.strip() for p in player_names if p.strip()]
