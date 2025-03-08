@@ -35,6 +35,9 @@ if st.button("Start Game"):
         st.session_state.round = 1
         st.session_state.first_round_completed = False
         st.session_state.game_data = []  # Reset game data for new session
+        st.session_state.story_input = ""  # Reset story input
+        st.session_state.character_inputs = []  # Reset character inputs
+        st.session_state.notes_input = ""  # Reset notes input
         st.rerun()  # Rerun to move to the next step
     else:
         st.error("Please enter between 3 and 8 players.")
@@ -105,6 +108,9 @@ if st.session_state.players and st.session_state.step >= 2:
             # Rerun to prepare for the next round
             st.session_state.step = 2
             st.session_state.round += 1
+            st.session_state.story_input = ""  # Reset story input
+            st.session_state.character_inputs = []  # Reset character inputs
+            st.session_state.notes_input = ""  # Reset notes input
             st.rerun()
 
     # Step 9: Download CSV (only after first round)
