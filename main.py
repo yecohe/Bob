@@ -35,10 +35,7 @@ if st.button("Start Game"):
         st.session_state.round = 1
         st.session_state.first_round_completed = False
         st.session_state.game_data = []  # Reset game data for new session
-        st.session_state.story_input = ""  # Reset story input
-        st.session_state.character_inputs = []  # Reset character inputs
-        st.session_state.notes_input = ""  # Reset notes input
-        st.experimental_rerun()  # Rerun to move to the next step
+        st.rerun()  # Use st.rerun() to move to the next step
     else:
         st.error("Please enter between 3 and 8 players.")
 
@@ -52,24 +49,25 @@ if st.session_state.players and st.session_state.step >= 2:
     st.caption(f"Emotion: {emotion}")
     st.caption(f"Prompt: {prompt}")
     
-    # Step 3: Write a story
-    if "story_input" not in st.session_state:
-        st.session_state.story_input = ""
-    story = st.text_area("Write your story", value=st.session_state.story_input, key="story_input")
+    # Step 3: Write a story - Create new input field for each round
+    story_key = f"story_input_round_{st.session_state.round}"
+    story = st.text_area("Write your story", key=story_key)
     
-    # Step 4: Add characters (Minimum 2, Maximum: number of players)
+    # Step 4: Add characters - Create new input fields for each round
     character_inputs = []
     st.write("### Enter characters from your story")
     for i in range(len(st.session_state.players)):
-        char_name = st.text_input(f"Enter character {i+1}", key=f"char_{i}")
+        char_key = f"char_{i}_round_{st.session_state.round}"
+        char_name = st.text_input(f"Enter character {i+1}", key=char_key)
         if char_name:
             character_inputs.append(char_name)
     
     if 2 <= len(character_inputs) <= len(st.session_state.players):
         if st.button("Next"):
             st.session_state.characters = character_inputs
+            st.session_state.story_input = story
             st.session_state.step = 3
-            st.rerun()  # Rerun to move to the next step
+            st.rerun()  # Use st.rerun() to move to the next step
     
     # Step 5: Assign characters to players (Select Box, only if step >= 3)
     if st.session_state.step >= 3:
@@ -77,7 +75,7 @@ if st.session_state.players and st.session_state.step >= 2:
         assigned_players = {}
         remaining_players = st.session_state.players.copy()
         for char in st.session_state.characters:
-            selected_player = st.selectbox(f"Assign {char} to a player", remaining_players, key=f"player_{char}")
+            selected_player = st.selectbox(f"Assign {char} to a player", remaining_players, key=f"player_{char}_round_{st.session_state.round}")
             assigned_players[char] = selected_player
             remaining_players.remove(selected_player)  # Remove selected player from remaining options
         
@@ -86,12 +84,13 @@ if st.session_state.players and st.session_state.step >= 2:
         assigned_puppets = {}
         remaining_puppets = PUPPETS.copy()
         for char in st.session_state.characters:
-            selected_puppet = st.selectbox(f"Assign {char} to a puppet", remaining_puppets, key=f"puppet_{char}")
+            selected_puppet = st.selectbox(f"Assign {char} to a puppet", remaining_puppets, key=f"puppet_{char}_round_{st.session_state.round}")
             assigned_puppets[char] = selected_puppet
             remaining_puppets.remove(selected_puppet)  # Remove selected puppet from remaining options
         
         # Step 7: Notes
-        notes = st.text_area("Additional notes", key="notes_input")
+        notes_key = f"notes_input_round_{st.session_state.round}"
+        notes = st.text_area("Additional notes", key=notes_key)
         
         # Step 8: Save results
         if st.button("Finish Round"):
@@ -102,17 +101,19 @@ if st.session_state.players and st.session_state.step >= 2:
                 "Story": story,
                 "Notes": notes,
             }
-            row_data.update({puppet: f"{assigned_players[char]} - {char}" for char, puppet in assigned_puppets.items()})
+            row_data.update({puppet: f"{assigned_players[char]} - {char}" if char in assigned_puppets else "" for char, puppet in assigned_puppets.items()})
+            
+            # Ensure all puppets are in the final row, even if unused
+            for puppet in PUPPETS:
+                if puppet not in row_data:
+                    row_data[puppet] = ""  # Add an empty string for unused puppets
             
             # Save the data
             st.session_state.game_data.append(row_data)
             
             # Rerun to prepare for the next round
-            st.session_state.step = 2
             st.session_state.round += 1
-            st.session_state.story_input = ""  # Reset story input
-            st.session_state.character_inputs = []  # Reset character inputs
-            st.session_state.notes_input = ""  # Reset notes input
+            st.session_state.step = 2
             st.rerun()  # Explicit rerun
 
     # Step 9: Download CSV (only after first round)
