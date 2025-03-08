@@ -16,6 +16,10 @@ if "players" not in st.session_state:
     st.session_state.players = []
 if "game_data" not in st.session_state:
     st.session_state.game_data = []
+if "step" not in st.session_state:
+    st.session_state.step = 1
+if "first_round_completed" not in st.session_state:
+    st.session_state.first_round_completed = False
 
 # Step 1: Set up players (only happens once)
 st.title("Blame It on Bop")
@@ -26,47 +30,50 @@ if st.button("Start Game"):
     if 3 <= len(player_names) <= 8:
         st.session_state.players = player_names
         st.session_state.round = 1
+        st.session_state.step = 2
     else:
         st.error("Please enter between 3 and 8 players.")
 
 # Only proceed if players are set
-if st.session_state.players:
+if st.session_state.players and st.session_state.step >= 2:
     st.subheader(f"Round {st.session_state.round}")
     
     # Step 2: Draw random cards
     emotion = random.choice(EMOTIONS)
     prompt = random.choice(PROMPTS)
-    st.caption(f"### Emotion: {emotion}")
-    st.caption(f"### Prompt: {prompt}")
+    st.caption(f"Emotion: {emotion}")
+    st.caption(f"Prompt: {prompt}")
     
     # Step 3: Write a story
     story = st.text_area("Write your story")
     
-    # Step 4: Add characters (Minimum 2 characters required)
+    # Step 4: Add characters (Minimum 2, Maximum: number of players)
     character_inputs = []
-    for i in range(2):
-        char_name = st.text_input(f"Enter character {i+1}")
+    st.write("### Enter characters from your story")
+    for i in range(len(st.session_state.players)):
+        char_name = st.text_input(f"Enter character {i+1}", key=f"char_{i}")
         if char_name:
             character_inputs.append(char_name)
     
-    if len(character_inputs) >= 2:
-        # Step 5: Assign characters to players (Select Box)
+    if 2 <= len(character_inputs) <= len(st.session_state.players):
+        if st.button("Next"):
+            st.session_state.characters = character_inputs
+            st.session_state.step = 3
+    
+    # Step 5: Assign characters to players (Select Box, only if step >= 3)
+    if st.session_state.step >= 3:
         st.write("### Match characters with players")
         assigned_players = {}
-        available_players = st.session_state.players.copy()
-        for char in character_inputs:
-            selected_player = st.selectbox(f"Assign {char} to a player", available_players, key=f"player_{char}")
+        for char in st.session_state.characters:
+            selected_player = st.selectbox(f"Assign {char} to a player", st.session_state.players, key=f"player_{char}")
             assigned_players[char] = selected_player
-            available_players.remove(selected_player)
         
         # Step 6: Assign characters to puppets (Select Box)
         st.write("### Match characters with puppets")
         assigned_puppets = {}
-        available_puppets = PUPPETS.copy()
-        for char in character_inputs:
-            selected_puppet = st.selectbox(f"Assign {char} to a puppet", available_puppets, key=f"puppet_{char}")
+        for char in st.session_state.characters:
+            selected_puppet = st.selectbox(f"Assign {char} to a puppet", PUPPETS, key=f"puppet_{char}")
             assigned_puppets[char] = selected_puppet
-            available_puppets.remove(selected_puppet)
         
         # Step 7: Notes
         notes = st.text_area("Additional notes")
@@ -76,7 +83,10 @@ if st.session_state.players:
             row_data = {puppet: f"{assigned_players[char]} - {char}" for char, puppet in assigned_puppets.items()}
             st.session_state.game_data.append(row_data)
             st.session_state.round += 1
+            st.session_state.step = 2
+            st.session_state.first_round_completed = True
     
-            # Step 9: Download CSV
-            df = pd.DataFrame(st.session_state.game_data)
-            st.download_button("Download Game Data", df.to_csv(index=False), "game_data.csv", "text/csv")
+    # Step 9: Download CSV (only after first round)
+    if st.session_state.first_round_completed:
+        df = pd.DataFrame(st.session_state.game_data)
+        st.download_button("Download Game Data", df.to_csv(index=False), "game_data.csv", "text/csv")
