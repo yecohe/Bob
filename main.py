@@ -30,7 +30,7 @@ def get_gspread_client():
         )
         return gspread.authorize(creds)
     except Exception as e:
-        st.error("Authentication failed. Please check your credentials.")
+        st.error(f"Authentication failed. Please check your credentials. {e}")
         return None
 
 def save_to_google_sheets(data):
@@ -56,7 +56,7 @@ try:
     auth_url, _ = flow.authorization_url(prompt='consent')
     st.markdown(f"[Login with Google]({auth_url})")
 except Exception as e:
-    st.error("Google authentication could not be initiated. Please check your configuration.")
+    st.error(f"Google authentication could not be initiated. Please check your configuration. {e}")
 
 
 # Define puppets, emotions, and prompts
