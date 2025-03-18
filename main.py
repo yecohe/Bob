@@ -136,7 +136,7 @@ if st.session_state.players and st.session_state.step >= 2:
             row_data = {
                 "Emotion": emotion,
                 "Prompt": prompt,
-                "Characters": character_inputs,
+                "Characters": ", ".join(character_inputs),
                 "Story": story,
                 "Notes": notes,
             }
