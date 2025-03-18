@@ -64,7 +64,7 @@ if "round" not in st.session_state:
 
 # Step 1: Set up players (only happens once)
 st.title("Blame It on Bob")
-st.write("The data is saved [here](https://docs.google.com/spreadsheets/d/13JeDyfS6wMtmoGiKHwWMh-4Rp-PL8fwWl3d3bqTOJPs/edit?gid=0#gid=0)."
+st.write("The data is saved [here](https://docs.google.com/spreadsheets/d/13JeDyfS6wMtmoGiKHwWMh-4Rp-PL8fwWl3d3bqTOJPs/edit?gid=0#gid=0).")
 st.subheader("Enter player names (3-8 players):")
 player_names = st.text_area("Players (one per line)").split("\n")
 player_names = [p.strip() for p in player_names if p.strip()]
