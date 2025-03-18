@@ -38,6 +38,7 @@ def save_to_google_sheets(data):
     if client:
         sheet = client.open_by_key(SPREADSHEET_ID).sheet1
         sheet.append_row(data)
+        st.info("Added to Google sheets")
 
 # Define puppets, emotions, and prompts
 PUPPETS = ["Taylor", "Fade", "Apexeus", "Adam", "Foil", "Sure", "Weeee", "Doña María", "Zizi", "Nahas"]
@@ -144,17 +145,13 @@ if st.session_state.players and st.session_state.step >= 2:
             for puppet in PUPPETS:
                 if puppet not in row_data:
                     row_data[puppet] = ""  # Add an empty string for unused puppets
-            
-            # Save the data
-            st.session_state.game_data.append(row_data)
-            
-            # Rerun to prepare for the next round
-            st.session_state.round += 1
-            st.session_state.step = 2
-            st.session_state.first_round_completed = True
-            st.rerun()  # Explicit rerun
 
-    # Step 9: Download CSV (only after first round)
-    if st.session_state.first_round_completed:
-        df = pd.DataFrame(st.session_state.game_data)
-        st.download_button("Download Game Data", df.to_csv(index=False), "game_data.csv", "text/csv")
+            if not get_gspread_client():
+                st.error("Could not save data to Google Sheets due to authentication failure.")
+            else:
+                save_to_google_sheets(row_data)
+                st.session_state.round += 1
+                st.session_state.step = 2
+                st.rerun()
+
+
