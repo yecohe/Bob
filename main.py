@@ -140,12 +140,16 @@ if st.session_state.players and st.session_state.step >= 2:
                 "Story": story,
                 "Notes": notes,
             }
-            row_data.update({puppet: f"{assigned_players[char]} - {char}" if char in assigned_puppets else "" for char, puppet in assigned_puppets.items()})
-            
-            # Ensure all puppets are in the final row, even if unused
-            for puppet in PUPPETS:
-                if puppet not in row_data:
-                    row_data[puppet] = ""  # Add an empty string for unused puppets
+
+            # Ensure puppets are always in the same order
+            puppet_assignments = {puppet: "" for puppet in PUPPETS}  # Initialize all puppets as empty
+
+            # Fill in assigned players and characters
+            for char, puppet in assigned_puppets.items():
+                puppet_assignments[puppet] = f"{assigned_players[char]} - {char}"
+
+            # Add ordered puppet assignments to row data
+            row_data.update(puppet_assignments)
 
             if not get_gspread_client():
                 st.error("Could not save data to Google Sheets due to authentication failure.")
