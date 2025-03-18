@@ -1,3 +1,11 @@
 streamlit
 pandas
 streamlit_sortables
+gspread
+google-auth
+google-auth-oauthlib
+google-auth-httplib2
+google-auth-oauthlib
+google-auth-oauthlib
+google-api-python-client
+streamlit-authenticator
