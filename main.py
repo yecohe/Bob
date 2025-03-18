@@ -37,7 +37,8 @@ def save_to_google_sheets(data):
     client = get_gspread_client()
     if client:
         sheet = client.open_by_key(SPREADSHEET_ID).sheet1
-        sheet.append_row(data)
+        row_data = list(data.values())
+        sheet.append_row(row_data)
         st.info("Added to Google sheets")
 
 # Define puppets, emotions, and prompts
