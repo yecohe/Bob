@@ -1,6 +1,63 @@
 import streamlit as st
 import pandas as pd
 import random
+import gspread
+from google.oauth2 import service_account
+from google_auth_oauthlib.flow import Flow
+from googleapiclient.discovery import build
+import streamlit_authenticator as stauth
+
+# Google Authentication Setup
+SCOPES = ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/userinfo.profile"]
+SPREADSHEET_ID = st.secrets["google_sheet_id"]  # Store in Streamlit secrets
+
+def get_gspread_client():
+    try:
+        creds = service_account.Credentials.from_service_account_info(
+            {
+                "type": st.secrets["type"],
+                "project_id": st.secrets["project_id"],
+                "private_key_id": st.secrets["private_key_id"],
+                "private_key": st.secrets["private_key"],
+                "client_email": st.secrets["client_email"],
+                "client_id": st.secrets["client_id"],
+                "auth_uri": st.secrets["auth_uri"],
+                "token_uri": st.secrets["token_uri"],
+                "auth_provider_x509_cert_url": st.secrets["auth_provider_x509_cert_url"],
+                "client_x509_cert_url": st.secrets["client_x509_cert_url"],
+            },
+            scopes=SCOPES,
+        )
+        return gspread.authorize(creds)
+    except Exception as e:
+        st.error("Authentication failed. Please check your credentials.")
+        return None
+
+def save_to_google_sheets(data):
+    client = get_gspread_client()
+    if client:
+        sheet = client.open_by_key(SPREADSHEET_ID).sheet1
+        sheet.append_row(data)
+
+# Authenticate with Google
+try:
+    flow = Flow.from_client_config(
+        {
+            "web": {
+                "client_id": st.secrets["client_id"],
+                "client_secret": st.secrets["client_secret"],
+                "auth_uri": st.secrets["auth_uri"],
+                "token_uri": st.secrets["token_uri"],
+                "redirect_uris": st.secrets["redirect_uris"]
+            }
+        },
+        scopes=SCOPES
+    )
+    auth_url, _ = flow.authorization_url(prompt='consent')
+    st.markdown(f"[Login with Google]({auth_url})")
+except Exception as e:
+    st.error("Google authentication could not be initiated. Please check your configuration.")
+
 
 # Define puppets, emotions, and prompts
 PUPPETS = ["Taylor", "Fade", "Apexeus", "Adam", "Foil", "Sure", "Weeee", "Doña María", "Zizi", "Nahas"]
