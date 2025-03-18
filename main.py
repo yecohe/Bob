@@ -141,12 +141,18 @@ if st.session_state.players and st.session_state.step >= 2:
                 "Notes": notes,
             }
 
-            # Ensure puppets are always in the same order
+            # Ensure puppets are always in the correct order
             puppet_assignments = {puppet: "" for puppet in PUPPETS}  # Initialize all puppets as empty
-
-            # Fill in assigned players and characters
-            for char, puppet in assigned_puppets.items():
-                puppet_assignments[puppet] = f"{assigned_players[char]} - {char}"
+        
+            # Fill in assigned players and characters in a consistent order
+            for puppet in PUPPETS:
+                for char, assigned_puppet in assigned_puppets.items():
+                    if assigned_puppet == puppet:
+                        puppet_assignments[puppet] = f"{assigned_players[char]} - {char}"
+            
+            # Ensure puppet order is consistent
+            for puppet in PUPPETS:
+                row_data[puppet] = puppet_assignments[puppet]
 
             # Add ordered puppet assignments to row data
             row_data.update(puppet_assignments)
