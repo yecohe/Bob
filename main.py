@@ -39,26 +39,6 @@ def save_to_google_sheets(data):
         sheet = client.open_by_key(SPREADSHEET_ID).sheet1
         sheet.append_row(data)
 
-# Authenticate with Google
-try:
-    flow = Flow.from_client_config(
-        {
-            "web": {
-                "client_id": st.secrets["client_id"],
-                "client_secret": st.secrets["client_secret"],
-                "auth_uri": st.secrets["auth_uri"],
-                "token_uri": st.secrets["token_uri"],
-                "redirect_uris": st.secrets["redirect_uris"]
-            }
-        },
-        scopes=SCOPES
-    )
-    auth_url, _ = flow.authorization_url(prompt='consent')
-    st.markdown(f"[Login with Google]({auth_url})")
-except Exception as e:
-    st.error(f"Google authentication could not be initiated. Please check your configuration. {e}")
-
-
 # Define puppets, emotions, and prompts
 PUPPETS = ["Taylor", "Fade", "Apexeus", "Adam", "Foil", "Sure", "Weeee", "Doña María", "Zizi", "Nahas"]
 EMOTIONS = [
