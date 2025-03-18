@@ -82,11 +82,19 @@ if st.button("Start Game"):
 if st.session_state.players and st.session_state.step >= 2:
     st.subheader(f"Round {st.session_state.round}")
     
-    # Step 2: Draw random cards
-    emotion = random.choice(EMOTIONS)
-    prompt = random.choice(PROMPTS)
+    # Step 2: Draw random cards (Only select once per round)
+    if f"emotion_{st.session_state.round}" not in st.session_state:
+        st.session_state[f"emotion_{st.session_state.round}"] = random.choice(EMOTIONS)
+    
+    if f"prompt_{st.session_state.round}" not in st.session_state:
+        st.session_state[f"prompt_{st.session_state.round}"] = random.choice(PROMPTS)
+    
+    emotion = st.session_state[f"emotion_{st.session_state.round}"]
+    prompt = st.session_state[f"prompt_{st.session_state.round}"]
+    
     st.caption(f"Emotion: {emotion}")
     st.caption(f"Prompt: {prompt}")
+
     
     # Step 3: Write a story - Create new input field for each round
     story_key = f"story_input_round_{st.session_state.round}"
@@ -134,8 +142,8 @@ if st.session_state.players and st.session_state.step >= 2:
         # Step 8: Save results
         if st.button("Finish Round"):
             row_data = {
-                "Emotion": emotion,
-                "Prompt": prompt,
+                "Emotion": st.session_state[f"emotion_{st.session_state.round}"],
+                "Prompt": st.session_state[f"prompt_{st.session_state.round}"],
                 "Characters": ", ".join(character_inputs),
                 "Story": story,
                 "Notes": notes,
